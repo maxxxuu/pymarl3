@@ -33,17 +33,18 @@ class AttRPEAgent(nn.Module):
     def init_hidden(self):
         # make hidden states on same device as model
         # return self.fc1.weight.new(1, self.args.rnn_hidden_dim).zero_()
-        return self.rpe_embedding.diagonal.weight_hh.new(self.args.n_agents)
+        return self.rpe_embedding.diagonal.weight_hh.new(self.args.rnn_hidden_dim)
 
     def forward(self, inputs, hidden_state=None):
         b, a, e = inputs.size()
-        print(inputs.size())
+        # print(f"inputs.size(): {inputs.size()}")
+        # print(f"hidden_state.size(): {hidden_state.size()}")
         
         # x = F.relu(self.fc1(inputs.view(-1, e)), inplace=True)
         if hidden_state is not None:
             hidden_state = hidden_state.reshape(-1, a, self.args.rnn_hidden_dim)
         h = self.rpe_embedding(inputs.view(-1, a, e), hidden_state)
-        print(f"h shape:{h.shape}")
+        # print(f"h shape:{h.shape}")
         q = self.actor(h)
-        print(f"q shape:{q.shape}")
+        # print(f"q shape:{q.shape}")
         return q.view(b, a, -1), h.view(b, a, -1)
