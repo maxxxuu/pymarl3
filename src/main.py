@@ -2,7 +2,7 @@ import random
 
 import numpy as np
 import os
-import collections
+import collections.abc as collections
 from os.path import dirname, abspath, join
 from copy import deepcopy
 from sacred import Experiment, SETTINGS
