@@ -83,4 +83,6 @@ class RPESymetryMean(nn.Module):
             h_out = h_out + h_mean
             output.append(h_out)
         output = torch.stack(output, dim=0)
+        if torch.any(torch.isnan(output)):
+            pass
         return output.view(h.shape)
