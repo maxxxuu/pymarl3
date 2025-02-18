@@ -12,6 +12,7 @@ from .updet_agent import UPDeT
 
 from .attrpe_agent import AttRPEAgent
 from .spe_rnn_agent import SPE_RNNAgent
+from .sattpe_rnn_agent import SAttPE_RNNAgent
 
 REGISTRY["rnn"] = RNNAgent
 REGISTRY["n_rnn"] = NRNNAgent
@@ -25,3 +26,4 @@ REGISTRY["gnn_rnn"] = GnnRNNAgent
 
 REGISTRY["attrpe"] = AttRPEAgent
 REGISTRY["sper"] = SPE_RNNAgent
+REGISTRY["sattper"] = SAttPE_RNNAgent

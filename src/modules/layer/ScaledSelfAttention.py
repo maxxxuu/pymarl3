@@ -51,3 +51,30 @@ class ScaledSelfAttention(nn.Module):
         attention = self.softmax(qk)
         output = torch.matmul(attention, value)
         return output
+
+class ScaledCrossAttention(nn.Module):
+    def __init__(self, q_emb_dim, v_emb_dim, q_dim=None, v_dim=None, bias=True):
+        super(ScaledCrossAttention, self).__init__()
+        self.q_emb_dim = q_emb_dim
+        self.v_emb_dim = v_emb_dim
+        self.q_dim = q_dim if q_dim is not None else self.q_emb_dim * 10
+        self.v_dim = v_dim if v_dim is not None else self.q_dim
+        self.w_query = nn.Linear(self.q_emb_dim, self.q_dim, bias=bias)
+        # Remark: q_dim == k_dim by definition
+        self.w_key = nn.Linear(self.v_emb_dim, self.q_dim, bias=bias)
+        self.w_value = nn.Linear(self.v_emb_dim, self.v_dim, bias=bias)
+        # self.softmax = nn.Softmax(dim=-2)
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, q, x):
+        query = self.w_query(q)
+        query = nn.Sigmoid()(query)
+        key = self.w_key(x)
+        value = self.w_value(x)
+        # return F.scaled_dot_product_attention(query, key, value)
+        qk = torch.matmul(query, key.transpose(-2, -1)) / (self.q_emb_dim ** 0.5)
+        qk = nn.ELU()(qk)
+        attention = self.softmax(qk)
+        output = torch.matmul(attention, value)
+        return output
+
