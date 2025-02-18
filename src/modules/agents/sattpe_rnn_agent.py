@@ -155,16 +155,6 @@ class SAttPE_RNNAgent(nn.Module):
             q_dim=self.rnn_hidden_dim, v_dim=self.rnn_hidden_dim, bias=False)
         self.pe_output_w_attack_action = nn.Sequential(*pe_output_w_attack_action_layers)
 
-        # pe_output_b_attack_action_layers = [
-        #     PESymetryMean(1, self.rnn_hidden_dim),
-        #     nn.ELU(),
-        #     # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
-        #     # nn.ELU(),
-        #     PESymetryMean(self.rnn_hidden_dim, 1),
-        #     # nn.ELU(),
-        # ]
-        # self.pe_output_b_attack_action = nn.Sequential(*pe_output_b_attack_action_layers)
-
         if self.args.map_type == "MMM":
             assert self.n_enemies >= self.n_agents, "For MMM map, for the reason that the 'attack' and 'rescue' use the same ids in SMAC, n_enemies must >= n_agents"
             # self.hyper_output_w_rescue_action = Hypernet(
