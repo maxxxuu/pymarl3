@@ -18,7 +18,6 @@ target_update_interval: 200
 
 # use the Q_Learner to train
 mac: "spe_mac"
-#agent: "hpn_rnn"
 agent: "sattper"
 
 hpn_hyper_dim: 64
