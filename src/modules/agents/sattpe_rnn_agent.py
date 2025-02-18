@@ -157,16 +157,7 @@ class SAttPE_RNNAgent(nn.Module):
 
         if self.args.map_type == "MMM":
             assert self.n_enemies >= self.n_agents, "For MMM map, for the reason that the 'attack' and 'rescue' use the same ids in SMAC, n_enemies must >= n_agents"
-            # self.hyper_output_w_rescue_action = Hypernet(
-            #     input_dim=self.ally_feats_dim, hidden_dim=args.hpn_hyper_dim,
-            #     main_input_dim=self.rnn_hidden_dim, main_output_dim=1,
-            #     activation_func=args.hpn_hyper_activation, n_heads=self.n_heads
-            # )  # output shape: rnn_hidden_dim * 1
-            # self.hyper_output_b_rescue_action = Hypernet(
-            #     input_dim=self.ally_feats_dim, hidden_dim=args.hpn_hyper_dim,
-            #     main_input_dim=1, main_output_dim=1,
-            #     activation_func=args.hpn_hyper_activation, n_heads=self.n_heads
-            # )  # output shape: 1
+
             pe_output_w_rescue_action_layers = [
                 nn.ELU(),
                 PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
