@@ -26,7 +26,7 @@ class PEMixer(nn.Module):
         #                                 nn.ReLU(inplace=True),
         #                                 nn.Linear(args.hypernet_embed, self.n_agents * self.embed_dim))
         self.PE_hidden = nn.Sequential(PESymetryMean(1, args.hypernet_embed, pos=self.abs),
-                                       nn.ReLU(inplace=True),
+                                       nn.ELU(inplace=True),
                                        PESymetryMean(args.hypernet_embed, self.embed_dim, pos=self.abs))
 
         self.hyper_b1 = nn.Sequential(nn.Linear(self.input_dim, self.embed_dim))
@@ -48,7 +48,7 @@ class PEMixer(nn.Module):
         # reshape
         b, t, _ = qvals.size()
         
-        qvals = qvals.reshape(b * t, 1, self.n_agents)
+        # qvals = qvals.reshape(b * t, 1, self.n_agents)
         states = states.reshape(-1, self.state_dim)
 
         # First layer

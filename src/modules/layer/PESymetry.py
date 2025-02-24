@@ -101,5 +101,5 @@ class SoftplusParameterization(nn.Module):
     def forward(self, X):
         return nn.functional.softplus(X)
 
-    def right_inverse(self, A):
-        return A + torch.log(-torch.expm1(-A))
+    # def right_inverse(self, A):
+    #     return A + torch.log(-torch.expm1(-A))
