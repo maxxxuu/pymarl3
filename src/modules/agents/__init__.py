@@ -13,6 +13,7 @@ from .updet_agent import UPDeT
 from .attrpe_agent import AttRPEAgent
 from .spe_rnn_agent import SPE_RNNAgent
 from .spe_light_rnn_agent import SPE_Light_RNNAgent
+from .spe_medium_rnn_agent import SPE_Medium_RNNAgent
 from .sattpe_rnn_agent import SAttPE_RNNAgent
 from .sattpe1_rnn_agent import SAttPE1_RNNAgent
 
@@ -29,5 +30,6 @@ REGISTRY["gnn_rnn"] = GnnRNNAgent
 REGISTRY["attrpe"] = AttRPEAgent
 REGISTRY["sper"] = SPE_RNNAgent
 REGISTRY["sper_light"] = SPE_Light_RNNAgent
+REGISTRY["sper_medium"] = SPE_Medium_RNNAgent
 REGISTRY["sattper"] = SAttPE_RNNAgent
 REGISTRY["sattpe1r"] = SAttPE1_RNNAgent

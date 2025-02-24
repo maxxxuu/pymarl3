@@ -12,8 +12,14 @@ window = 5
 data_paths = [
     '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_qmix/2',
     '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe_qmix/1',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/hpn_qmix/4',
     "/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/hpn_qmix/6",
     '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/attrpe_qmix/4',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe1_qmix/1',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/6h_vs_8z/spe_qmix/1',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/6h_vs_8z/hpn_qmix/1',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_light_qmix/1',
+
     'results/sacred/8m_vs_9m/qmix/1',
 
 ]
