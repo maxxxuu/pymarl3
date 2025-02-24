@@ -44,7 +44,7 @@ def run(_run, _config, _log):
     testing_algorithms = ["vdn", "qmix", "hpn_vdn", "hpn_qmix",
                           "deepset_vdn", "deepset_qmix", "deepset_hyper_vdn", "deepset_hyper_qmix",
                           "updet_vdn", "updet_qmix", "vdn_DA", "qmix_DA",
-                          "gnn_vdn", "gnn_qmix", "qplex", "hpn_qplex", "asn"
+                          "gnn_vdn", "gnn_qmix", "qplex", "hpn_qplex", "asn", "qpemix"
                           ]
     env_name = args.env
     logdir = env_name

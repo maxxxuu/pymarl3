@@ -1,12 +1,20 @@
 import torch
 from torch import nn
+import torch.nn.utils.parametrize as P
 
 
 class PESymetryMean(nn.Module):
-    def __init__(self, in_dim: int, out_dim: int) -> None:
+    def __init__(self, in_dim: int, out_dim: int, pos: bool = False) -> None:
+        """
+
+        pos : if pos=True, all the weights will be positive
+        """
         super(PESymetryMean, self).__init__()
         self.diagonal = nn.Linear(in_dim, out_dim)
         self.rest = nn.Linear(in_dim, out_dim, bias=False)
+        if pos:
+            P.register_parametrization(self.diagonal, "weight", SoftplusParameterization())
+            P.register_parametrization(self.rest, "weight", SoftplusParameterization())
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x_mean = x.mean(0, keepdim=True)
@@ -86,3 +94,12 @@ class RPESymetryMean(nn.Module):
         if torch.any(torch.isnan(output)):
             pass
         return output.view(h.shape)
+
+
+class SoftplusParameterization(nn.Module):
+    # Make weights positive
+    def forward(self, X):
+        return nn.functional.softplus(X)
+
+    def right_inverse(self, A):
+        return A + torch.log(-torch.expm1(-A))

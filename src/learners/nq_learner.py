@@ -6,6 +6,7 @@ from torch.optim import RMSprop, Adam
 
 from components.episode_buffer import EpisodeBatch
 from modules.mixers.nmix import Mixer
+from modules.mixers.penmix import PEMixer
 from modules.mixers.qatten import QattenMixer
 from modules.mixers.vdn import VDNMixer
 from utils.rl_utils import build_td_lambda_targets, build_q_lambda_targets
@@ -66,6 +67,8 @@ class NQLearner:
             self.mixer = VDNMixer()
         elif args.mixer == "qmix":  # 31.521K
             self.mixer = Mixer(args)
+        elif args.mixer == "peqmix":
+            self.mixer = PEMixer(args)
         else:
             raise "mixer error"
 
