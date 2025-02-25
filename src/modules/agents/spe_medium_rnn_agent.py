@@ -317,7 +317,8 @@ class SPE_Medium_RNNAgent(nn.Module):
             # )  # [bs, n_agents, n_allies]
 
             ally_feats_hh = embedding_allies_org + hh.view(-1, 1, self.rnn_hidden_dim)
-            q_rescue = self.pe_output_w_rescue_action(ally_feats_hh).squeeze(dim=-1)
+            q_rescue = self.pe_output_w_rescue_action(ally_feats_hh).squeeze(dim=-1).view(
+                bs, self.n_agents, self.n_allies)
             # For the reason that medivac is the last indexed agent, so the rescue action idx -> [0, n_allies-1]
             right_padding = th.ones_like(q_attack[:, -1:, self.n_allies:], requires_grad=False) * (-9999999)
             modified_q_attack_of_medivac = th.cat([q_rescue[:, -1:, :], right_padding], dim=-1)
