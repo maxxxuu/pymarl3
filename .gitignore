@@ -10,5 +10,6 @@ results/
 ./install_dependencies.sh
 ./install_sc2.sh
 .venv
+plots/
 
 *.png

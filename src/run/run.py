@@ -76,7 +76,7 @@ def run(_run, _config, _log):
                                   "{}-layer_num={}".format(
                                       args.mixer, args.gnn_layer_num
                                   ))
-        elif args.name in ["vdn", "qmix", "deepset_vdn", "deepset_qmix", "qplex", "asn"]:
+        elif args.name in ["vdn", "qmix", "deepset_vdn", "deepset_qmix", "qplex", "asn", "peqmix"]:
             logdir = os.path.join(logdir,
                                   "mixer={}".format(
                                       args.mixer,
