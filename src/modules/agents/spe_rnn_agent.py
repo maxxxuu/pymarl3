@@ -263,7 +263,7 @@ class SPE_RNNAgent(nn.Module):
 
 
         x = F.relu(embedding, inplace=True)
-        h_in = hidden_state.reshape(-1, self.rnn_hidden_dim)
+        h_in = hidden_state.view(-1, self.rnn_hidden_dim)
         hh = self.rnn(x, h_in)  # [bs * n_agents, rnn_hidden_dim]
 
         # Q-values of normal actions
@@ -289,8 +289,9 @@ class SPE_RNNAgent(nn.Module):
         # )  # [bs, n_agents, n_enemies]
 
         # TODO: Check dim
-        enemy_feats_hh = embedding_enemies_org + hh.view(-1, 1, self.rnn_hidden_dim)
-        q_attack = self.pe_output_w_attack_action(enemy_feats_hh).squeeze(dim=-1).view(  # [bs * n_agents * n_enemies, 1]
+        # enemy_feats_hh = embedding_enemies_org + hh.view(-1, 1, self.rnn_hidden_dim)
+        q_attack = self.pe_output_w_attack_action(embedding_enemies_org + hh.view(-1, 1, self.rnn_hidden_dim)).squeeze(
+            dim=-1).view(  # [bs * n_agents * n_enemies, 1]
             bs, self.n_agents, self.n_enemies
         )
 
