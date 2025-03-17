@@ -17,6 +17,7 @@ from .spe_light_rnn_agent import SPE_Light_RNNAgent
 from .spe_medium_rnn_agent import SPE_Medium_RNNAgent
 from .sattpe_rnn_agent import SAttPE_RNNAgent
 from .sattpe1_rnn_agent import SAttPE1_RNNAgent
+from .deepset_big_rnn_agent import DeepSetRNNAgent as DeepSetBigRNNAgent
 
 REGISTRY["rnn"] = RNNAgent
 REGISTRY["n_rnn"] = NRNNAgent
@@ -35,3 +36,4 @@ REGISTRY["sper_light"] = SPE_Light_RNNAgent
 REGISTRY["sper_medium"] = SPE_Medium_RNNAgent
 REGISTRY["sattper"] = SAttPE_RNNAgent
 REGISTRY["sattpe1r"] = SAttPE1_RNNAgent
+REGISTRY["deepset_big_rnn"] = DeepSetBigRNNAgent
