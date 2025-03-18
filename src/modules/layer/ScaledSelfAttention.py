@@ -1,6 +1,31 @@
 import torch
 from torch import nn
 
+from src.modules.layer.PESymetry import PESymetryMean
+
+class PESelfAttention(nn.Module):
+    def __init__(self, input_dim, embed_dim=None, num_heads=1):
+        super(PESelfAttention, self).__init__()
+        self.input_dim = input_dim
+        self.embed_dim = embed_dim if embed_dim is not None else input_dim * num_heads
+        self.num_heads = num_heads
+
+        self.embed_q = PESymetryMean(self.input_dim, self.embed_dim)
+        self.embed_k = PESymetryMean(self.input_dim, self.embed_dim)
+        self.embed_v = PESymetryMean(self.input_dim, self.embed_dim)
+
+        self.attention = nn.MultiheadAttention(embed_dim, num_heads, batch_first=True)
+
+    def forward(self, x):
+        q = nn.functional.elu(self.embed_q(x))
+        k = nn.functional.elu(self.embed_k(x))
+        v = nn.functional.elu(self.embed_v(x))
+
+        att, _ = self.self_attention(q, k, v)
+        # Output shape: [batch_size, indiv_nb, embed_dim
+        return att
+
+
 
 class VanillaScaledSelfAttention(nn.Module):
     def __init__(self, emb_dim, q_dim=None, v_dim=None):

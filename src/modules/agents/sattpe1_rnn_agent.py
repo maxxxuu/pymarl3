@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.nn.parameter import Parameter
 
 from modules.layer.PESymetry import PESymetryMean, RPESymetryMean
-from modules.layer.ScaledSelfAttention import ScaledSelfAttention, ScaledCrossAttention
+from modules.layer.ScaledSelfAttention import ScaledSelfAttention, ScaledCrossAttention, PESelfAttention
 
 
 def get_activation_func(name, hidden_dim):
@@ -113,7 +113,7 @@ class SAttPE1_RNNAgent(nn.Module):
 
         # %%%%%%%%%%%%%%%%%%%%%% PE input layer %%%%%%%%%%%%%%%%%%%%
         pe_input_w_enemy_layers = [
-            ScaledSelfAttention(self.enemy_feats_dim, q_dim=self.rnn_hidden_dim, v_dim=self.rnn_hidden_dim, bias=False),
+            PESelfAttention(self.enemy_feats_dim, self.rnn_hidden_dim, 4),
             nn.ELU(),
             PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
             nn.ELU(),
@@ -124,7 +124,7 @@ class SAttPE1_RNNAgent(nn.Module):
         self.pe_input_w_enemy = nn.Sequential(*pe_input_w_enemy_layers)
 
         pe_input_w_ally_layers = [
-            ScaledSelfAttention(self.ally_feats_dim, q_dim=self.rnn_hidden_dim, v_dim=self.rnn_hidden_dim, bias=False),
+            PESelfAttention(self.ally_feats_dim, self.rnn_hidden_dim, 4),
             nn.ELU(),
             PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
             nn.ELU(),
@@ -153,6 +153,7 @@ class SAttPE1_RNNAgent(nn.Module):
         self.pe_output_w_attack_action_att = ScaledSelfAttention(
             emb_dim=self.rnn_hidden_dim,
             q_dim=self.rnn_hidden_dim, v_dim=self.rnn_hidden_dim, bias=False)
+
         self.pe_output_w_attack_action = nn.Sequential(*pe_output_w_attack_action_layers)
 
         if self.args.map_type == "MMM":
@@ -165,9 +166,8 @@ class SAttPE1_RNNAgent(nn.Module):
                 PESymetryMean(self.rnn_hidden_dim, 1),
                 # nn.ELU(),
             ]
-            self.pe_output_w_rescue_action_att = ScaledSelfAttention(
-                    emb_dim=self.rnn_hidden_dim,
-                    q_dim=self.rnn_hidden_dim, v_dim=self.rnn_hidden_dim, bias=False)
+            self.pe_output_w_rescue_action_att = PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 4),
+
             self.pe_output_w_rescue_action = nn.Sequential(*pe_output_w_rescue_action_layers)
 
             # pe_output_b_attack_action_layers = [
