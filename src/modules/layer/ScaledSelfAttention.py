@@ -21,7 +21,7 @@ class PESelfAttention(nn.Module):
         k = nn.functional.elu(self.embed_k(x))
         v = nn.functional.elu(self.embed_v(x))
 
-        att, _ = self.self_attention(q, k, v)
+        att, _ = self.attention(q, k, v)
         # Output shape: [batch_size, indiv_nb, embed_dim
         return att
 
