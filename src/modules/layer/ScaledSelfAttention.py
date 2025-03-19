@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src.modules.layer.PESymetry import PESymetryMean
+from modules.layer.PESymetry import PESymetryMean
 
 class PESelfAttention(nn.Module):
     def __init__(self, input_dim, embed_dim=None, num_heads=1):
