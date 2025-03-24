@@ -37,6 +37,8 @@ class DeepSetRNNAgent(nn.Module):
             nn.ELU(),
             nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim, bias=False),
             nn.ELU(),
+            nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim, bias=False),
+            nn.ELU(),
         )
 
         # Enemy features
@@ -48,10 +50,19 @@ class DeepSetRNNAgent(nn.Module):
             nn.ELU(),
             nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim, bias=False),
             nn.ELU(),
+            nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim, bias=False),
+            nn.ELU(),
         )
 
         self.rnn = nn.GRUCell(args.rnn_hidden_dim, args.rnn_hidden_dim)
-        self.fc2 = nn.Linear(args.rnn_hidden_dim, args.n_actions)
+        self.fc2 = nn.Sequential(
+            nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim, bias=False),
+            nn.ELU(),
+            nn.Linear(args.rnn_hidden_dim, args.rnn_hidden_dim, bias=False),
+            nn.ELU(),
+            nn.Linear(args.rnn_hidden_dim, args.n_actions),
+            nn.ELU(),
+        )
 
         # print(self.fc1_ally.weight.data.mean(), self.fc1_ally.weight.data.var())
         # print(self.fc1_enemy.weight.data.mean(), self.fc1_enemy.weight.data.var())

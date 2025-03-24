@@ -18,13 +18,13 @@ test_interval = 10000
 data_paths = [
     # 'results/sacred/8m_vs_9m/qmix/1',
     # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/qmix/1',
-    # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_qmix/2',
-    # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe_qmix/1',
-    # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe_qmix/3',
-    # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/hpn_qmix/4',
-    # "/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/hpn_qmix/6",
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_qmix/2',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe_qmix/1',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe_qmix/3',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/hpn_qmix/4',
+    "/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/hpn_qmix/6",
     # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/attrpe_qmix/4',
-    # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe1_qmix/1',
+    '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/sattpe1_qmix/3',
     # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_light_qmix/2',
     # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_peqmix/1',
     # '/Users/zhuofan.xu/Downloads/pymarl_results/8m_vs_9m/spe_medium_qmix/1',
@@ -80,10 +80,15 @@ data_paths = [
 
 ]
 
-models = ['spe_qmix', 'deepset_qmix', 'hpn_qmix']
-maps = ['6h_vs_8z', 'MMM2', '3s5z_vs_3s6z']
-dict_rename = {'spe_qmix': 'EFPENN', 'deepset_qmix': 'DeepSet', 'hpn_qmix': 'HPN'}
-order_label = ['EFPENN', 'DeepSet', 'HPN',]
+models = ['spe_qmix', 'deepset_qmix', 'hpn_qmix', 'sattpe1_qmix', 'sattpe_qmix']
+maps = ['8m_vs_9m', '6h_vs_8z', 'MMM2', '3s5z_vs_3s6z']
+dict_rename = {
+    'spe_qmix': 'EFPENN',
+    'deepset_qmix': 'DeepSet',
+    'hpn_qmix': 'HPN',
+    'sattpe1_qmix': 'sattpe1_qmix',
+    'sattpe_qmix': 'sattpe_qmix'}
+order_label = ['EFPENN', 'DeepSet', 'HPN', 'sattpe_qmix', 'sattpe1_qmix']
 
 all_data = []
 
@@ -122,7 +127,7 @@ for map in df["map"].unique():
         estimator="median", errorbar="pi")
     # win_rate_plot = sns.relplot(data=df, x="T", y="wind_win_rate", hue="agent", palette="tab10", col="map", kind="line", aspect=3)
 
-    plt.savefig(f"{plot_path}/{map}.png", bbox_inches="tight", facecolor=(1,1,1,0), dpi=500,)
+    plt.savefig(f"{plot_path}/{map}.pdf", bbox_inches="tight", facecolor=(1,1,1,0), dpi=500,)
 
     plt.clf()
 
@@ -149,6 +154,6 @@ win_rate_plot.fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.
 
 
 
-plt.savefig(f"{plot_path}/smac_result.pdf", bbox_inches="tight", facecolor=(1,1,1,0), dpi=300,)
+plt.savefig(f"{plot_path}/smac_result.png", bbox_inches="tight", facecolor=(1,1,1,0), dpi=300,)
 
 plt.clf()
