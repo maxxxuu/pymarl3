@@ -118,8 +118,8 @@ class SAttPE1_RNNAgent(nn.Module):
             nn.ELU(),
             PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 2),
             nn.ELU(),
-            PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
-            nn.ELU(),
+            # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
+            # nn.ELU(),
         ]
 
         self.pe_input_w_enemy = nn.Sequential(*pe_input_w_enemy_layers)
@@ -130,8 +130,8 @@ class SAttPE1_RNNAgent(nn.Module):
             nn.ELU(),
             PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 2),
             nn.ELU(),
-            PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
-            nn.ELU(),
+            # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
+            # nn.ELU(),
         ]
 
         self.pe_input_w_ally = nn.Sequential(*pe_input_w_ally_layers)
@@ -146,8 +146,8 @@ class SAttPE1_RNNAgent(nn.Module):
         # %%%%%%%%%%%%%%%%%%%%%% PE output layer %%%%%%%%%%%%%%%%%%%%
         # TODO: use output of self.pe_input_w_enemy + output of self.rnn as input of this net
         pe_output_w_attack_action_layers = [
-            nn.ELU(),
-            PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
+            # nn.ELU(),
+            # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
             nn.ELU(),
             PESymetryMean(self.rnn_hidden_dim, 1),
             # nn.ELU(),
@@ -160,8 +160,8 @@ class SAttPE1_RNNAgent(nn.Module):
             assert self.n_enemies >= self.n_agents, "For MMM map, for the reason that the 'attack' and 'rescue' use the same ids in SMAC, n_enemies must >= n_agents"
 
             pe_output_w_rescue_action_layers = [
-                nn.ELU(),
-                PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
+                # nn.ELU(),
+                # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
                 nn.ELU(),
                 PESymetryMean(self.rnn_hidden_dim, 1),
                 # nn.ELU(),
