@@ -116,7 +116,7 @@ class SAttPE1_RNNAgent(nn.Module):
 
             PESymetryMean(self.enemy_feats_dim, self.rnn_hidden_dim),
             nn.ELU(),
-            PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 2),
+            PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 4),
             nn.ELU(),
             # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
             # nn.ELU(),
@@ -128,7 +128,7 @@ class SAttPE1_RNNAgent(nn.Module):
 
             PESymetryMean(self.ally_feats_dim, self.rnn_hidden_dim),
             nn.ELU(),
-            PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 2),
+            PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 4),
             nn.ELU(),
             # PESymetryMean(self.rnn_hidden_dim, self.rnn_hidden_dim),
             # nn.ELU(),
@@ -152,7 +152,7 @@ class SAttPE1_RNNAgent(nn.Module):
             PESymetryMean(self.rnn_hidden_dim, 1),
             # nn.ELU(),
         ]
-        self.pe_output_w_attack_action_att = PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 2)
+        self.pe_output_w_attack_action_att = PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 4)
 
         self.pe_output_w_attack_action = nn.Sequential(*pe_output_w_attack_action_layers)
 
@@ -166,7 +166,7 @@ class SAttPE1_RNNAgent(nn.Module):
                 PESymetryMean(self.rnn_hidden_dim, 1),
                 # nn.ELU(),
             ]
-            self.pe_output_w_rescue_action_att = PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 2),
+            self.pe_output_w_rescue_action_att = PESelfAttention(self.rnn_hidden_dim, self.rnn_hidden_dim, 4),
 
             self.pe_output_w_rescue_action = nn.Sequential(*pe_output_w_rescue_action_layers)
 
