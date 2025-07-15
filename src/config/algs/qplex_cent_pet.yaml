@@ -38,4 +38,4 @@ weighted_head: True
 is_adv_attention: True
 is_stop_gradient: True
 
-name: "qplex"
+name: "qplex_cent_pet"

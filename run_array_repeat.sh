@@ -16,8 +16,8 @@
 module purge
 
 module load arch/a100
-module load python/3.9.18
-module load cuda/12.1
+module load python/3.9.12
+module load cuda/12.1.0
 
 cd $WORK/pymarl3
 
