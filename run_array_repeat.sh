@@ -9,6 +9,8 @@
 #SBATCH --cpus-per-task=16           # number of cores per task for gpu_p5 (1/8 of 8-GPUs A100 node)
 #SBATCH --hint=nomultithread         # hyperthreading is deactivated
 #SBATCH --array=0-39
+##SBATCH --mail-type=FAIL
+##SBATCH --mail-user=
 
 # Cleans out the modules loaded in interactive and inherited by default
 module purge
