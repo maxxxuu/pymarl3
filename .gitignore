@@ -12,6 +12,7 @@ results/
 .venv
 plots/
 analysis
+logs
 
 run_array_repeat.sh
 *.png
