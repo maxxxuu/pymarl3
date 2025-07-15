@@ -1,0 +1,8 @@
+qmix 3s5z_vs_3s6z
+qmix 6h_vs_8z
+qmix_cent_pet 3s5z_vs_3s6z
+qmix_cent_pet 6h_vs_8z
+qplex 3s5z_vs_3s6z
+qplex 6h_vs_8z
+qplex_cent_pet 3s5z_vs_3s6z
+qplex_cent_pet 6h_vs_8z
