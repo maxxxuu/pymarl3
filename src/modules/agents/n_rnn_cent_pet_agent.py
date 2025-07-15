@@ -37,6 +37,7 @@ class NRNNCentPETAgent(nn.Module):
 
         inputs = inputs.view(-1, a, e)
         x = F.relu(self.fc1(inputs), inplace=True)
+        x = x.reshape(-1, self.args.rnn_hidden_dim)
         h_in = hidden_state.reshape(-1, self.args.rnn_hidden_dim)
         hh = self.rnn(x, h_in)
 
