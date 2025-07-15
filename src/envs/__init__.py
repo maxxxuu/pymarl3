@@ -27,9 +27,9 @@ REGISTRY = {}
 
 if smac:
     REGISTRY["sc2"] = partial(env_fn, env=StarCraft2EnvWrapper)
-    if sys.platform == "linux":
-        os.environ.setdefault("SC2PATH",
-                              os.path.join(os.getcwd(), "3rdparty", "StarCraftII"))
+    # if sys.platform == "linux":
+    #     os.environ.setdefault("SC2PATH",
+    #                           os.path.join(os.getcwd(), "3rdparty", "StarCraftII"))
 else:
     print("SMAC V1 is not supported...")
 
