@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 import torch.nn.utils.parametrize as P
-
+import torch.nn.functional as F
 
 class PESymetryMean(nn.Module):
     def __init__(self, in_dim: int, out_dim: int, pos: bool = False) -> None:
@@ -22,6 +22,27 @@ class PESymetryMean(nn.Module):
         x_mean = self.rest(x_mean)
         x = self.diagonal(x)
         x = x + x_mean
+        return x
+    
+class PESymetryMeanTanh(nn.Module):
+    def __init__(self, in_dim: int, out_dim: int, pos: bool = False) -> None:
+        """
+
+        pos : if pos=True, all the weights will be positive
+        """
+        super(PESymetryMeanTanh, self).__init__()
+        self.individual = nn.Linear(in_dim, out_dim)
+        self.pooling = nn.Linear(in_dim, out_dim, bias=False)
+        if pos:
+            P.register_parametrization(self.individual, "weight", SoftplusParameterization())
+            P.register_parametrization(self.pooling, "weight", SoftplusParameterization())
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x_mean = x.mean(0, keepdim=True)
+        x_mean = x.mean(-2, keepdim=True)
+        x_mean = self.pooling(x_mean)
+        x = self.individual(x)
+        x = x + F.tanh(x_mean)
         return x
 
 
@@ -79,7 +100,7 @@ class RPESymetryMean(nn.Module):
         self.diagonal = nn.GRUCell(in_dim, out_dim)
         self.rest = nn.GRUCell(in_dim, out_dim, bias=False)
 
-    def forward(self, x: torch.Tensor, h: torch.Tensor) -> (torch.Tensor, torch.Tensor):
+    def forward(self, x: torch.Tensor, h: torch.Tensor) -> torch.Tensor:
         # x_mean = x.mean(0, keepdim=True)
         output = []
         for i, j in zip(x.view(-1, x.shape[-2], x.shape[-1]), h.view(-1, h.shape[-2], h.shape[-1])):

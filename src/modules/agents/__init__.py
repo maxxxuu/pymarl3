@@ -7,6 +7,7 @@ from .deepset_hyper_rnn_agent import DeepSetHyperRNNAgent
 from .deepset_rnn_agent import DeepSetRNNAgent
 from .gnn_rnn_agent import GnnRNNAgent
 from .n_rnn_agent import NRNNAgent
+from .n_rnn_cent_pet_agent import NRNNCentPETAgent
 from .rnn_agent import RNNAgent
 from .updet_agent import UPDeT
 
@@ -21,6 +22,7 @@ from .deepset_big_rnn_agent import DeepSetRNNAgent as DeepSetBigRNNAgent
 
 REGISTRY["rnn"] = RNNAgent
 REGISTRY["n_rnn"] = NRNNAgent
+REGISTRY["n_rnn_cent_pet"] = NRNNCentPETAgent
 REGISTRY["hpn_rnn"] = HPN_RNNAgent
 REGISTRY["hpns_rnn"] = HPNS_RNNAgent
 REGISTRY["deepset_rnn"] = DeepSetRNNAgent
