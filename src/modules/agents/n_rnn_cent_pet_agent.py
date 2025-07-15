@@ -30,7 +30,7 @@ class NRNNCentPETAgent(nn.Module):
 
     def init_hidden(self):
         # make hidden states on same device as model
-        return self.fc1.weight.new(self.args.n_agents, self.args.rnn_hidden_dim).zero_()
+        return self.fc1.individual.weight.new(self.args.n_agents, self.args.rnn_hidden_dim).zero_()
 
     def forward(self, inputs, hidden_state):
         b, a, e = inputs.size()
