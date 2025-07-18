@@ -169,8 +169,9 @@ class DMAQ_qattenLearner:
             self.mac.cuda()
 
         if self.args.n_agents > 20:
-            split_num = 2
+            split_num = 4
             a, b, c, d = batch.split(split_num)
+            # a, b = batch.split(split_num)
 
             # Optimise
             self.optimiser.zero_grad()
