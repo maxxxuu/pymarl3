@@ -4,7 +4,8 @@ env_args:
   change_fov_with_move: False  # if True, we split the full field-of-view into 4 90-degree sectors (instead of 12 30-degree sectors), each of which corresponds to `move north, south, east, west'.
   #  %%%%%%%%%%%%%%%%%%%%%% new config compared to v1 %%%%%%%%%%%%%%%%%%%%%%
   capability_config:
-    n_units: 5
+#    n_units: 5
+    n_units: 10
     team_gen:
       dist_type: "weighted_teams"
       unit_types:
@@ -22,7 +23,8 @@ env_args:
     start_positions:
       dist_type: "surrounded_and_reflect"
       p: 0.5
-      n_enemies: 5
+#      n_enemies: 5
+      n_enemies: 10
       map_x: 32
       map_y: 32
 
