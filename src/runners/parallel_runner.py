@@ -186,7 +186,9 @@ class ParallelRunner:
 
             if self.args.evaluate:
                 assert self.batch_size == 1
-                move = [["北", "南", "东", "西"][action - 2] if action > 1 and action < 6 else "action-{}".format(action)
+                # move = [["北", "南", "东", "西"][action - 2] if action > 1 and action < 6 else "action-{}".format(action)
+                #         for action in cpu_actions[0]]
+                move = [["North", "South", "East", "West"][action - 2] if action > 1 and action < 6 else "action-{}".format(action)
                         for action in cpu_actions[0]]
                 print(self.t, move, post_transition_data["reward"])
                 time.sleep(1)
