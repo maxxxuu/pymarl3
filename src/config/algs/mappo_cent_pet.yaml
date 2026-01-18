@@ -1,0 +1,60 @@
+# MAPPO with Centralized PET agent
+
+# Action selector
+action_selector: "soft_policies"
+mask_before_softmax: True
+
+# Runner and batch settings
+runner: "parallel"
+batch_size_run: 8
+buffer_size: 5000
+batch_size: 128
+
+# Training horizon
+t_max: 10050000
+
+# Target updates (soft update when <=1)
+target_update_interval_or_tau: 0.01
+
+# Controller / agent
+mac: "basic_mac"
+agent: "n_rnn_cent_pet"
+rnn_hidden_dim: 64
+agent_output_type: "pi_logits"
+
+# Learner
+learner: "mappo_learner"
+critic_type: "cv_critic"
+
+# MAPPO-specific parameters
+lr: 0.0005
+entropy_coef: 0.01
+ppo_clip_ratio: 0.2
+gae_lambda: 0.95
+use_rnn: True
+hidden_dim: 128
+
+# Standardization
+standardise_returns: False
+standardise_rewards: True
+q_nstep: 5
+add_value_last_step: True
+
+# Observations
+obs_agent_id: True
+obs_last_action: False
+obs_individual_obs: False
+
+# Compatibility / logging fields (not used by MAPPO but needed to avoid Sacred ConfigAddedError)
+td_lambda: 0.6
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 100000
+
+# PET-specific options
+use_layer_norm: False
+use_orthogonal: False
+gain: 0.01
+
+# Algorithm name
+name: "mappo_cent_pet"

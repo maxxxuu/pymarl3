@@ -1,0 +1,54 @@
+# Multi-Agent Proximal Policy Optimization (MAPPO) Configuration
+
+# Action selector
+action_selector: "soft_policies"
+mask_before_softmax: True
+
+# Runner and batch settings
+runner: "parallel"
+buffer_size: 10
+batch_size_run: 10
+batch_size: 10
+
+# Network update settings
+target_update_interval_or_tau: 0.01
+
+# Learning rates and network dimensions
+lr: 0.0005
+hidden_dim: 128
+
+# Observation configuration
+obs_agent_id: True
+obs_last_action: False
+obs_individual_obs: False
+
+# Agent and learner settings
+agent_output_type: "pi_logits"
+learner: "mappo_learner"
+
+# MAPPO-specific parameters
+entropy_coef: 0.01
+ppo_clip_ratio: 0.2      # Epsilon in PPO clipped objective
+gae_lambda: 0.95          # GAE lambda parameter
+use_rnn: True
+
+# Standardization
+standardise_returns: False
+standardise_rewards: True
+q_nstep: 5                # Used for bootstrapping in returns
+add_value_last_step: True
+
+# Critic type
+critic_type: "cv_critic"
+
+# Algorithm name
+name: "mappo"
+
+# Training timesteps
+t_max: 10050000
+
+# Dummy parameters for compatibility (package assumes Q-learning defaults)
+td_lambda: 0.6
+epsilon_start: 1.0
+epsilon_finish: 0.05
+epsilon_anneal_time: 100000

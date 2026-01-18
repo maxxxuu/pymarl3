@@ -1,4 +1,5 @@
-# code heavily adapted from https://github.com/AnujMahajanOxf/MAVEN
+# Multi-Agent Proximal Policy Optimization (MAPPO)
+# Adapted from https://github.com/marlbenchmark/on-policy
 import copy
 
 import torch as th
@@ -6,10 +7,10 @@ from torch.optim import Adam
 
 from components.episode_buffer import EpisodeBatch
 from components.standarize_stream import RunningMeanStd
-from modules.critics import REGISTRY as critic_resigtry
+from modules.critics import REGISTRY as critic_registry
 
 
-class ActorCriticLearner:
+class MAPPOLearner:
     def __init__(self, mac, scheme, logger, args):
         self.args = args
         self.n_agents = args.n_agents
@@ -20,7 +21,7 @@ class ActorCriticLearner:
         self.agent_params = list(mac.parameters())
         self.agent_optimiser = Adam(params=self.agent_params, lr=args.lr)
 
-        self.critic = critic_resigtry[args.critic_type](scheme, args)
+        self.critic = critic_registry[args.critic_type](scheme, args)
         self.target_critic = copy.deepcopy(self.critic)
 
         self.critic_params = list(self.critic.parameters())
@@ -39,9 +40,8 @@ class ActorCriticLearner:
 
     def train(self, batch: EpisodeBatch, t_env: int, episode_num: int):
         # Get the relevant quantities
-
         rewards = batch["reward"][:, :-1]
-        actions = batch["actions"][:, :]
+        actions = batch["actions"][:, :-1]
         terminated = batch["terminated"][:, :-1].float()
         mask = batch["filled"][:, :-1].float()
         mask[:, 1:] = mask[:, 1:] * (1 - terminated[:, :-1])
@@ -61,41 +61,66 @@ class ActorCriticLearner:
         if mask.sum() == 0:
             self.logger.log_stat("Mask_Sum_Zero", 1, t_env)
             self.logger.console_logger.error(
-                "Actor Critic Learner: mask.sum() == 0 at t_env {}".format(t_env)
+                "MAPPO Learner: mask.sum() == 0 at t_env {}".format(t_env)
             )
             return
 
         mask = mask.repeat(1, 1, self.n_agents)
 
-        critic_mask = mask.clone()
-
+        # Forward pass to get policy outputs
         mac_out = []
         self.mac.init_hidden(batch.batch_size)
         for t in range(batch.max_seq_length - 1):
             agent_outs = self.mac.forward(batch, t=t)
             mac_out.append(agent_outs)
-        mac_out = th.stack(mac_out, dim=1)  # Concat over time
+        mac_out = th.stack(mac_out, dim=1)  # (batch_size, time, n_agents, n_actions)
 
         pi = mac_out
-        advantages, critic_train_stats = self.train_critic_sequential(
-            self.critic, self.target_critic, batch, rewards, critic_mask
+
+        # Get values for GAE computation
+        with th.no_grad():
+            v_pred = self.target_critic(batch)
+            v_pred = v_pred[:, :-1].squeeze(3)  # (batch_size, time, n_agents)
+
+        if self.args.standardise_returns:
+            v_pred_normalized = (v_pred - self.ret_ms.mean) / th.sqrt(self.ret_ms.var)
+        else:
+            v_pred_normalized = v_pred
+
+        # Compute advantages using GAE
+        advantages = self._compute_gae(
+            rewards, v_pred_normalized, terminated, mask
         )
-        actions = actions[:, :-1]
+
+        # Compute returns
+        returns = advantages + v_pred_normalized
+
+        if self.args.standardise_returns:
+            self.ret_ms.update(returns)
+            advantages = (returns - self.ret_ms.mean) / th.sqrt(self.ret_ms.var)
+
         advantages = advantages.detach()
-        # Calculate policy grad with mask
+        returns = returns.detach()
 
+        # PPO policy update with clipped objective
         pi[mask == 0] = 1.0
-
+        # actions already has shape (batch, time, n_agents, 1); gather over the action dim
         pi_taken = th.gather(pi, dim=3, index=actions).squeeze(3)
         log_pi_taken = th.log(pi_taken + 1e-10)
 
+        # Entropy regularization
         entropy = -th.sum(pi * th.log(pi + 1e-10), dim=-1)
+
+        # PPO clipped objective
+        ratio = th.exp(log_pi_taken)
+        clipped_ratio = th.clamp(ratio, 1.0 - getattr(self.args, 'ppo_clip_ratio', 0.2), 1.0 + getattr(self.args, 'ppo_clip_ratio', 0.2))
+        surr1 = ratio * advantages
+        surr2 = clipped_ratio * advantages
+        pg_loss = -th.min(surr1, surr2)
+
         pg_loss = (
-            -(
-                (advantages * log_pi_taken + self.args.entropy_coef * entropy) * mask
-            ).sum()
-            / mask.sum()
-        )
+            (pg_loss + getattr(self.args, 'entropy_coef', 0.01) * entropy) * mask
+        ).sum() / mask.sum()
 
         # Optimise agents
         self.agent_optimiser.zero_grad()
@@ -104,6 +129,9 @@ class ActorCriticLearner:
             self.agent_params, self.args.grad_norm_clip
         )
         self.agent_optimiser.step()
+
+        # Critic update
+        critic_loss = self._update_critic(batch, returns, mask)
 
         self.critic_training_steps += 1
         if (
@@ -118,18 +146,7 @@ class ActorCriticLearner:
             self._update_targets_soft(self.args.target_update_interval_or_tau)
 
         if t_env - self.log_stats_t >= self.args.learner_log_interval:
-            ts_logged = len(critic_train_stats["critic_loss"])
-            for key in [
-                "critic_loss",
-                "critic_grad_norm",
-                "td_error_abs",
-                "q_taken_mean",
-                "target_mean",
-            ]:
-                self.logger.log_stat(
-                    key, sum(critic_train_stats[key]) / ts_logged, t_env
-                )
-
+            self.logger.log_stat("critic_loss", critic_loss, t_env)
             self.logger.log_stat(
                 "advantage_mean",
                 (advantages * mask).sum().item() / mask.sum().item(),
@@ -144,37 +161,40 @@ class ActorCriticLearner:
             )
             self.log_stats_t = t_env
 
-    def train_critic_sequential(self, critic, target_critic, batch, rewards, mask):
-        # Optimise critic
-        with th.no_grad():
-            target_vals = target_critic(batch)
-            target_vals = target_vals.squeeze(3)
+    def _compute_gae(self, rewards, v_pred, terminated, mask, gamma=None, gae_lambda=None):
+        """Compute Generalized Advantage Estimation"""
+        if gamma is None:
+            gamma = self.args.gamma
+        if gae_lambda is None:
+            gae_lambda = getattr(self.args, 'gae_lambda', 0.95)
 
-        if self.args.standardise_returns:
-            target_vals = target_vals * th.sqrt(self.ret_ms.var) + self.ret_ms.mean
+        batch_size = rewards.size(0)
+        max_t = rewards.size(1)
+        n_agents = rewards.size(2)
 
-        target_returns = self.nstep_returns(
-            rewards, mask, target_vals, self.args.q_nstep
-        )
+        advantages = th.zeros_like(rewards)
+        gae = th.zeros_like(rewards[:, 0])
 
-        if self.args.standardise_returns:
-            self.ret_ms.update(target_returns)
-            target_returns = (target_returns - self.ret_ms.mean) / th.sqrt(
-                self.ret_ms.var
-            )
+        # Compute GAE backwards through time
+        for t in reversed(range(max_t)):
+            if t == max_t - 1:
+                next_v = th.zeros_like(v_pred[:, t])
+            else:
+                next_v = v_pred[:, t + 1]
 
-        running_log = {
-            "critic_loss": [],
-            "critic_grad_norm": [],
-            "td_error_abs": [],
-            "target_mean": [],
-            "q_taken_mean": [],
-        }
+            td_error = rewards[:, t] + gamma * next_v * (1 - terminated[:, t]) - v_pred[:, t]
+            gae = td_error + gamma * gae_lambda * gae * (1 - terminated[:, t])
+            advantages[:, t] = gae
 
-        v = critic(batch)[:, :-1].squeeze(3)
-        td_error = target_returns.detach() - v
+        return advantages
+
+    def _update_critic(self, batch, returns, mask):
+        """Update value function critic"""
+        v_pred = self.critic(batch)[:, :-1].squeeze(3)
+
+        td_error = returns.detach() - v_pred
         masked_td_error = td_error * mask
-        loss = (masked_td_error**2).sum() / mask.sum()
+        loss = (masked_td_error ** 2).sum() / mask.sum()
 
         self.critic_optimiser.zero_grad()
         loss.backward()
@@ -183,38 +203,7 @@ class ActorCriticLearner:
         )
         self.critic_optimiser.step()
 
-        running_log["critic_loss"].append(loss.item())
-        running_log["critic_grad_norm"].append(grad_norm.item())
-        mask_elems = mask.sum().item()
-        running_log["td_error_abs"].append(
-            (masked_td_error.abs().sum().item() / mask_elems)
-        )
-        running_log["q_taken_mean"].append((v * mask).sum().item() / mask_elems)
-        running_log["target_mean"].append(
-            (target_returns * mask).sum().item() / mask_elems
-        )
-        return masked_td_error, running_log
-
-    def nstep_returns(self, rewards, mask, values, nsteps):
-        nstep_values = th.zeros_like(values[:, :-1])
-        for t_start in range(rewards.size(1)):
-            nstep_return_t = th.zeros_like(values[:, 0])
-            for step in range(nsteps + 1):
-                t = t_start + step
-                if t >= rewards.size(1):
-                    break
-                elif step == nsteps:
-                    nstep_return_t += self.args.gamma**step * values[:, t] * mask[:, t]
-                elif t == rewards.size(1) - 1 and getattr(self.args, 'add_value_last_step', False):
-                    nstep_return_t += self.args.gamma**step * rewards[:, t] * mask[:, t]
-                    nstep_return_t += self.args.gamma ** (step + 1) * values[:, t + 1]
-                else:
-                    nstep_return_t += self.args.gamma**step * rewards[:, t] * mask[:, t]
-            nstep_values[:, t_start, :] = nstep_return_t
-        return nstep_values
-
-    def _update_targets(self):
-        self.target_critic.load_state_dict(self.critic.state_dict())
+        return loss.item()
 
     def _update_targets_hard(self):
         self.target_critic.load_state_dict(self.critic.state_dict())

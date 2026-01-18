@@ -28,6 +28,7 @@ use_rnn: True
 standardise_returns: False
 standardise_rewards: True
 q_nstep: 5 # 1 corresponds to normal r + gammaV
+add_value_last_step: True
 critic_type: "cv_critic"
 
 name: "maa2c"
